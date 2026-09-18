@@ -942,10 +942,31 @@ def pathways():
 @app.route("/<path:filename>")
 def serve_static(filename):
     """
-    Serves static frontend assets (e.g., CSS, JS, images) from FRONTEND_DIR.
+    Serves static frontend assets (e.g., CSS, JS, images) from FRONTEND_DIR or root.
     """
-    if os.path.exists(os.path.join(FRONTEND_DIR, filename)):
-        return send_from_directory(FRONTEND_DIR, filename)
+    clean_name = filename
+    if clean_name.startswith("frontend/"):
+        clean_name = clean_name[len("frontend/"):]
+    elif clean_name == "frontend":
+        clean_name = "index.html"
+
+    # Check FRONTEND_DIR
+    target = os.path.join(FRONTEND_DIR, clean_name)
+    if os.path.exists(target) and os.path.isfile(target):
+        return send_from_directory(FRONTEND_DIR, clean_name)
+
+    # Check parent directory (project root)
+    parent_dir = os.path.dirname(FRONTEND_DIR)
+    parent_target = os.path.join(parent_dir, filename)
+    if os.path.exists(parent_target) and os.path.isfile(parent_target):
+        return send_from_directory(parent_dir, filename)
+
+    # Check if inside public
+    public_dir = os.path.join(parent_dir, "public")
+    public_target = os.path.join(public_dir, clean_name)
+    if os.path.exists(public_target) and os.path.isfile(public_target):
+        return send_from_directory(public_dir, clean_name)
+
     return jsonify({"error": f"Asset '{filename}' not found"}), 404
 
 
