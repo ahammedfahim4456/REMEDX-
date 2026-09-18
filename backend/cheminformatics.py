@@ -15,7 +15,10 @@ import json
 import sqlite3
 import os
 
-CACHE_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "repurpose_cache.db")
+if os.environ.get("VERCEL"):
+    CACHE_DB = "/tmp/repurpose_cache.db"
+else:
+    CACHE_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "repurpose_cache.db")
 
 # Well-known PAINS and Brenk structural alert patterns (SMARTS / regex on canonical smiles)
 PAINS_PATTERNS = [

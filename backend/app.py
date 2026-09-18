@@ -47,9 +47,12 @@ app = Flask(__name__)
 CORS(app)  # allows the frontend to call this server even if opened separately
 
 OPEN_TARGETS_URL = "https://api.platform.opentargets.org/api/v4/graphql"
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "repurpose_cache.db")
-CACHE_TTL_SECONDS = 60 * 60 * 24  # 1 day -- disease-target-drug data doesn't change fast
 BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/repurpose_cache.db"
+else:
+    DB_PATH = os.path.join(BACKEND_DIR, "repurpose_cache.db")
+CACHE_TTL_SECONDS = 60 * 60 * 24  # 1 day -- disease-target-drug data doesn't change fast
 SIBLING_FRONTEND = os.path.abspath(os.path.join(BACKEND_DIR, "..", "frontend"))
 
 if os.path.exists(os.path.join(SIBLING_FRONTEND, "index.html")):
